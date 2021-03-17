@@ -1,0 +1,88 @@
+---
+title: "WIC Transaction Data"
+output: html_notebook
+---
+
+1) Import Data from csv, skipping the rows which are in the header of the document, into R dataframes
+2) Combine all dataframes into a single dataframe
+3) Report out the number of unique families
+4) Report out the average spending per family
+5) Report out the average number of vendors a family uses
+
+#getting the directory
+
+```{r}
+print(getwd())
+
+```
+#https://stackoverflow.com/questions/39110755/skip-specific-rows-using-read-csv-in-r
+
+#Reading the first file for Guilford_County_Redemption_Week1, loading the data by skipping the documentation row from row 1 to row 14
+
+```{r}
+headers = read.csv("Guilford_County_Redemption_Week1.csv", skip = 14, header = F, nrows = 1, as.is = T)
+Redemption_df1 = read.csv("Guilford_County_Redemption_Week1.csv", skip = 15, header = F)
+colnames(Redemption_df1)= headers
+```
+
+
+#Reading the Second file for Guilford_County_Redemption_Week2, loading the data by skipping the documentation row from row 1 to row 14
+
+
+```{r}
+headers2 = read.csv("Guilford_County_Redemption_Week2.csv", skip = 14, header = F, nrows = 1, as.is = T)
+Redemption_df2 = read.csv("Guilford_County_Redemption_Week2.csv", skip = 15, header = F)
+colnames(Redemption_df2)= headers
+
+```
+
+
+#Reading the Third file for Guilford_County_Redemption_Week,3 loading the data by skipping the documentation row from row 1 to row 14
+
+
+```{r}
+headers3 = read.csv("Guilford_County_Redemption_Week3.csv", skip = 14, header = F, nrows = 1, as.is = T)
+Redemption_df3 = read.csv("Guilford_County_Redemption_Week3.csv", skip = 15, header = F)
+colnames(Redemption_df3)= headers
+
+```
+
+
+#combining all the 3 dataframes together
+
+```{r}
+WIC_Redemption_df<-rbind(Redemption_df1,Redemption_df2,Redemption_df3)
+```
+
+#3) Report out the number of unique families
+#https://dplyr.tidyverse.org/reference/distinct.html
+
+#6617 unique families
+
+# count of unique families
+
+```{r}
+length(unique(WIC_Redemption_df$`WIC Family ID`))
+
+```
+#reporting out unique families 
+
+```{r}
+
+Unique_WIC_family_df<-distinct(WIC_Redemption_df, WIC_Redemption_df$'WIC Family ID', .keep_all = TRUE)
+
+```
+
+
+
+#4) Report out the average spending per family
+# WIC family id with mean spending(Requested Amount) only these columns?
+
+#5) Report out the average number of vendors a family uses
+#for each family unique vendors
+#find unique vendors, unique family ?
+#WIC family id with mean vendors ? or count of vendors (Vendor id) 
+#only 2 columns vendors and WIC family id? 
+
+
+
