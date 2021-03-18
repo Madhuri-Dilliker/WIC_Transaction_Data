@@ -48,7 +48,7 @@ colnames(Redemption_df3)= headers
 ```
 
 
-#combining all the 3 dataframes together
+#2) combining all the 3 dataframes together
 
 ```{r}
 WIC_Redemption_df<-rbind(Redemption_df1,Redemption_df2,Redemption_df3)
@@ -76,13 +76,133 @@ Unique_WIC_family_df<-distinct(WIC_Redemption_df, WIC_Redemption_df$'WIC Family 
 
 
 #4) Report out the average spending per family
-# WIC family id with mean spending(Requested Amount) only these columns?
 
-#5) Report out the average number of vendors a family uses
+```{r}
+Average_spending_df <-aggregate(WIC_Redemption_df$'Requested Amount', by=list(WIC_Family_Id=WIC_Redemption_df$'WIC Family ID'), FUN=mean)
+
+```
+
+
+#5) Report out the average (mean and median) number of vendors a family uses
 #for each family unique vendors
 #find unique vendors, unique family ?
 #WIC family id with mean vendors ? or count of vendors (Vendor id) 
 #only 2 columns vendors and WIC family id? 
 
+family - associated with vendor - unique vendor id
+id - count of unique vendor id -
+mean and median 
 
+#count of unique vendors
+
+```{r}
+length(unique(Unique_WIC_family_df$`Vendor Number`))
+
+```
+#Creating new dataframe Unique_Vendor_df with WIC familiy id and vendor number column
+
+```{r}
+
+Unique_Vendor_df<-distinct(Unique_WIC_family_df, Unique_WIC_family_df$'Vendor Number', Unique_WIC_family_df$`WIC Family ID`)
+
+
+```
+
+#Renaming the columns
+
+```{r}
+
+colnames(Unique_Vendor_df)[1] <- "Vendor_Number"
+colnames(Unique_Vendor_df)[2] <- "WIC_Family_Id"
+
+```
+
+https://stackoverflow.com/questions/33410949/how-to-do-group-by-count-in-r
+
+
+#Counting the vendor number for each unique family id by using sqldf, querying on Unique_Vendor_df dataframe and grouping the data by vendor number
+
+```{r}
+
+library(sqldf)
+Count_vendor_df<-sqldf("SELECT  WIC_Family_Id, Vendor_Number, COUNT(*) AS Count FROM Unique_Vendor_df GROUP BY Vendor_Number")
+
+
+```
+
+#mean and median for all the vendor count column
+
+```{r}
+Mean <- mean(Count_vendor_df$Count)
+Median <- median(Count_vendor_df$Count)
+```
+
+# for all data from WIC_Redemption_df dataframe
+#Renaming column
+
+```{r}
+colnames(WIC_Redemption_df)[27] <- "Vendor_Number"
+colnames(WIC_Redemption_df)[13] <- "WIC_Family_Id"
+```
+
+#query on all the data and group by family id and vendor id to find the count of vendors
+
+```{r}
+library(sqldf)
+all_Family_vendors_count_df<-sqldf("SELECT WIC_Family_Id, Vendor_Number, COUNT(Vendor_Number) AS Count FROM WIC_Redemption_df GROUP BY WIC_Family_Id,Vendor_Number")
+
+```
+
+#finding the mean and median for all_Family_vendors_count_df dataframe
+
+```{r}
+all_Family_vendors_count_df$Mean <- mean(all_Family_vendors_count_df$Count)
+all_Family_vendors_count_df$Median <- median(all_Family_vendors_count_df$Count)
+
+Mean_all <- mean(all_Family_vendors_count_df$Count)
+Median_all <- median(all_Family_vendors_count_df$Count)
+```
+
+#Data visualizations
+
+#Reporting average spending for each family
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+
+```
+#shows the average spending for each family
+```{r}
+ggplot(Average_spending_df, aes(x=WIC_Family_Id, y=x )) + 
+    geom_point(
+      color="orange",
+        fill="#69b3a2",
+        shape=21,
+        alpha=0.5,
+        size=6,
+        stroke = 2
+    )
+```
+#vendor count distribution
+```{r}
+barplot(height=Count_vendor_df$Count, names=Count_vendor_df$Vendor_Number, 
+        col=rgb(0.8,0.1,0.1,0.6),
+        xlab="Vendor number", 
+        ylab="Vendor count", 
+        main="Vendor count distribution", 
+        ylim=c(0,40)
+        )
+
+
+
+
+```
+```{r}
+
+
+
+
+```
 
