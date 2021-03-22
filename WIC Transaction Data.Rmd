@@ -165,7 +165,7 @@ Vendor_number_freq<-sqldf("SELECT WIC_Family_Id, Vendor_Number, COUNT(*) as Vend
 
 Avg_Vendor_freq<-sqldf("SELECT WIC_Family_Id, Vendor_Number, Vendor_number_freq, avg(Vendor_number_freq), median (Vendor_number_freq)
        FROM Vendor_number_freq
-       GROUP BY WIC_Family_Id")
+       GROUP BY WIC_Family_Id,Vendor_Number ")
 
 Avg_Vendor_freq$mean_vendor <- Avg_Vendor_freq$Vendor_number_freq
 Avg_Vendor_freq$median_vendor <- Avg_Vendor_freq$Vendor_number_freq
@@ -186,7 +186,7 @@ library(dplyr)
 ```
 #shows the average spending for each family
 ```{r}
-ggplot(Average_spending_df, aes(x=WIC_Family_Id, y=x )) + 
+ggplot(Average_spending_df, aes(x=WIC_Family_Id, y=Average_spending_df$Avg_requested_amount )) + 
     geom_point(
       color="orange",
         fill="#69b3a2",
@@ -198,12 +198,12 @@ ggplot(Average_spending_df, aes(x=WIC_Family_Id, y=x )) +
 ```
 #vendor count distribution
 ```{r}
-barplot(height=Count_vendor_df$Count, names=Count_vendor_df$Vendor_Number, 
+barplot(height= Vendor_number_freq$Vendor_number_freq , names=Vendor_number_freq$Vendor_Number , 
         col=rgb(0.8,0.1,0.1,0.6),
         xlab="Vendor number", 
         ylab="Vendor count", 
         main="Vendor count distribution", 
-        ylim=c(0,40)
+        ylim=c(0,10)
         )
 
 
