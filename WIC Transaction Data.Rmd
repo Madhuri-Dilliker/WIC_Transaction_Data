@@ -94,14 +94,16 @@ colnames(Unique_WIC_family_df)[25] <- "Authorization_Number"
 
 
 #library(sqldf)
-#Average_spending_df<-sqldf("SELECT WIC_Family_Id , Authorization_Number, AVG (Requested_Amount) FROM Unique_WIC_family_df where WIC_Family_Id= '954365711O'  ")
+#Average_spending_df<-sqldf("SELECT WIC_Family_Id , Authorization_Number,Sum (Requested_Amount)   FROM Unique_WIC_family_df GROUP BY WIC_Family_Id,Authorization_Number")
 
 
 library(dplyr)
 Unique_WIC_family_df %>%
-   dplyr::group_by(WIC_Family_Id, Authorization_Number) %>% 
-   dplyr::select(WIC_Family_Id,Authorization_Number,Requested_Amount) %>% 
-   dplyr::summarize(Avg_requested_amount = mean(Requested_Amount))
+   group_by(WIC_Family_Id, Authorization_Number) %>% 
+   dplyr::summarize(Avg_requested_amount = mean(Requested_Amount),n=n())
+
+
+Average_spending_df<-aggregate(Unique_WIC_family_df$Requested_Amount, by=list(Unique_WIC_family_df$WIC_Family_Id,Unique_WIC_family_df$Authorization_Number), FUN=mean)
 
 
 ```
