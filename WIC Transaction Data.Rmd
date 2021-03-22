@@ -83,6 +83,8 @@ Unique_WIC_family_df<-distinct(WIC_Redemption_df, WIC_Redemption_df$'WIC Family 
 colnames(WIC_Redemption_df)[23] <- "Requested_Amount"
 colnames(WIC_Redemption_df)[13] <- "WIC_Family_Id"
 colnames(WIC_Redemption_df)[25] <- "Authorization_Number"
+colnames(WIC_Redemption_df)[27] <- "Vendor_Number"
+
 
 ```
 
@@ -107,7 +109,7 @@ colnames(Unique_WIC_family_df)[25] <- "Authorization_Number"
 library(dplyr)
 Average_spending_df<-WIC_Redemption_df %>%
    group_by(WIC_Family_Id, Authorization_Number) %>% 
-   summarise(Avg_requested_amount = mean(Requested_Amount),n=n())
+   summarise(Avg_requested_amount = mean(Requested_Amount),No_of_items=n())
 ```
 
 
@@ -124,75 +126,53 @@ mean and median
 #count of unique vendors
 
 ```{r}
-length(unique(Unique_WIC_family_df$`Vendor Number`))
+length(unique(WIC_Redemption_df$Vendor_Number))
 
 ```
 
+#count number of vendors per item by grouping family and vendor number
 
 
-#Creating new dataframe Unique_Vendor_df with WIC familiy id and vendor number column
+```{r}
+library(dplyr)
+count_number_of_vendor_per_item<-WIC_Redemption_df %>%
+   group_by(WIC_Family_Id, Vendor_Number) %>% 
+   summarise(No_of_item_per_vendor=n())
+```
+# vendor number occurance for each families 
 
 ```{r}
 
-Unique_Vendor_df<-distinct(Unique_WIC_family_df, Unique_WIC_family_df$'Vendor Number', Unique_WIC_family_df$`WIC Family ID`)
+unique_vendor_number_count_for_families=count_number_of_vendor_per_item %>% group_by(Vendor_Number) %>% tally()
 
 
 ```
 
-#Renaming the columns
-
-```{r}
-
-colnames(Unique_Vendor_df)[1] <- "Vendor_Number"
-colnames(Unique_Vendor_df)[2] <- "WIC_Family_Id"
-
-```
-
-https://stackoverflow.com/questions/33410949/how-to-do-group-by-count-in-r
-
-
-#Counting the vendor number for each unique family id by using sqldf, querying on Unique_Vendor_df dataframe and grouping the data by vendor number
-
-```{r}
-
-library(sqldf)
-Count_vendor_df<-sqldf("SELECT  WIC_Family_Id, Vendor_Number, COUNT(*) AS Count FROM Unique_Vendor_df GROUP BY Vendor_Number")
-
-
-```
-
-#mean and median for all the vendor count column
-
-```{r}
-Mean <- mean(Count_vendor_df$Count)
-Median <- median(Count_vendor_df$Count)
-```
-
-# for all data from WIC_Redemption_df dataframe
-#Renaming column
-
-```{r}
-colnames(WIC_Redemption_df)[27] <- "Vendor_Number"
-colnames(WIC_Redemption_df)[13] <- "WIC_Family_Id"
-```
-
-#query on all the data and group by family id and vendor id to find the count of vendors
+#finding frequency or count for vendor used/occurance for each families
 
 ```{r}
 library(sqldf)
-all_Family_vendors_count_df<-sqldf("SELECT WIC_Family_Id, Vendor_Number, COUNT(Vendor_Number) AS Count FROM WIC_Redemption_df GROUP BY WIC_Family_Id,Vendor_Number")
-
+Vendor_number_freq<-sqldf("SELECT WIC_Family_Id, Vendor_Number, COUNT(*) as Vendor_number_freq
+       FROM count_number_of_vendor_per_item
+       GROUP BY WIC_Family_Id")
 ```
 
-#finding the mean and median for all_Family_vendors_count_df dataframe
+
+#finding the mean and median for each familiy for vendor used
+
 
 ```{r}
-all_Family_vendors_count_df$Mean <- mean(all_Family_vendors_count_df$Count)
-all_Family_vendors_count_df$Median <- median(all_Family_vendors_count_df$Count)
 
-Mean_all <- mean(all_Family_vendors_count_df$Count)
-Median_all <- median(all_Family_vendors_count_df$Count)
+Avg_Vendor_freq<-sqldf("SELECT WIC_Family_Id, Vendor_Number, Vendor_number_freq, avg(Vendor_number_freq), median (Vendor_number_freq)
+       FROM Vendor_number_freq
+       GROUP BY WIC_Family_Id")
+
+Avg_Vendor_freq$mean_vendor <- Avg_Vendor_freq$Vendor_number_freq
+Avg_Vendor_freq$median_vendor <- Avg_Vendor_freq$Vendor_number_freq
+
 ```
+
+
 
 #Data visualizations
 
