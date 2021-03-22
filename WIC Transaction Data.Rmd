@@ -53,7 +53,7 @@ colnames(Redemption_df3)= headers
 ```{r}
 WIC_Redemption_df<-rbind(Redemption_df1,Redemption_df2,Redemption_df3)
 
-write.csv(WIC_Redemption_df,"WIC_Redemption_df.csv")
+#write.csv(WIC_Redemption_df,"WIC_Redemption_df.csv")
 
 ```
 
@@ -71,10 +71,22 @@ length(unique(WIC_Redemption_df$`WIC Family ID`))
 #reporting out unique families 
 
 ```{r}
+library(dplyr)
 
 Unique_WIC_family_df<-distinct(WIC_Redemption_df, WIC_Redemption_df$'WIC Family ID', .keep_all = TRUE)
 
 ```
+
+#Renaming columns for easy identification
+
+```{r}
+colnames(WIC_Redemption_df)[23] <- "Requested_Amount"
+colnames(WIC_Redemption_df)[13] <- "WIC_Family_Id"
+colnames(WIC_Redemption_df)[25] <- "Authorization_Number"
+
+```
+
+
 
 #Renaming columns for easy identification
 
@@ -89,23 +101,13 @@ colnames(Unique_WIC_family_df)[25] <- "Authorization_Number"
 
 #4) Report out the average spending per family
 
+
 ```{r}
-#Average_spending_df <-aggregate(WIC_Redemption_df$'Requested Amount', by=list(WIC_Family_Id=WIC_Redemption_df$'WIC Family ID'), FUN=mean)
-
-
-#library(sqldf)
-#Average_spending_df<-sqldf("SELECT WIC_Family_Id , Authorization_Number,Sum (Requested_Amount)   FROM Unique_WIC_family_df GROUP BY WIC_Family_Id,Authorization_Number")
-
 
 library(dplyr)
-Unique_WIC_family_df %>%
+Average_spending_df<-WIC_Redemption_df %>%
    group_by(WIC_Family_Id, Authorization_Number) %>% 
-   dplyr::summarize(Avg_requested_amount = mean(Requested_Amount),n=n())
-
-
-Average_spending_df<-aggregate(Unique_WIC_family_df$Requested_Amount, by=list(Unique_WIC_family_df$WIC_Family_Id,Unique_WIC_family_df$Authorization_Number), FUN=mean)
-
-
+   summarise(Avg_requested_amount = mean(Requested_Amount),n=n())
 ```
 
 
