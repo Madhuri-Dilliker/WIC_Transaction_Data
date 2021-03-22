@@ -52,6 +52,9 @@ colnames(Redemption_df3)= headers
 
 ```{r}
 WIC_Redemption_df<-rbind(Redemption_df1,Redemption_df2,Redemption_df3)
+
+write.csv(WIC_Redemption_df,"WIC_Redemption_df.csv")
+
 ```
 
 #3) Report out the number of unique families
@@ -73,12 +76,33 @@ Unique_WIC_family_df<-distinct(WIC_Redemption_df, WIC_Redemption_df$'WIC Family 
 
 ```
 
+#Renaming columns for easy identification
+
+```{r}
+colnames(Unique_WIC_family_df)[23] <- "Requested_Amount"
+colnames(Unique_WIC_family_df)[13] <- "WIC_Family_Id"
+colnames(Unique_WIC_family_df)[25] <- "Authorization_Number"
+
+```
+
 
 
 #4) Report out the average spending per family
 
 ```{r}
-Average_spending_df <-aggregate(WIC_Redemption_df$'Requested Amount', by=list(WIC_Family_Id=WIC_Redemption_df$'WIC Family ID'), FUN=mean)
+#Average_spending_df <-aggregate(WIC_Redemption_df$'Requested Amount', by=list(WIC_Family_Id=WIC_Redemption_df$'WIC Family ID'), FUN=mean)
+
+
+#library(sqldf)
+#Average_spending_df<-sqldf("SELECT WIC_Family_Id , Authorization_Number, AVG (Requested_Amount) FROM Unique_WIC_family_df where WIC_Family_Id= '954365711O'  ")
+
+
+library(dplyr)
+Unique_WIC_family_df %>%
+   dplyr::group_by(WIC_Family_Id, Authorization_Number) %>% 
+   dplyr::select(WIC_Family_Id,Authorization_Number,Requested_Amount) %>% 
+   dplyr::summarize(Avg_requested_amount = mean(Requested_Amount))
+
 
 ```
 
@@ -99,6 +123,9 @@ mean and median
 length(unique(Unique_WIC_family_df$`Vendor Number`))
 
 ```
+
+
+
 #Creating new dataframe Unique_Vendor_df with WIC familiy id and vendor number column
 
 ```{r}
@@ -200,6 +227,29 @@ barplot(height=Count_vendor_df$Count, names=Count_vendor_df$Vendor_Number,
 
 ```
 ```{r}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
