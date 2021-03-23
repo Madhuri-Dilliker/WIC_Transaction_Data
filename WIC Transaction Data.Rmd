@@ -15,6 +15,16 @@ output: html_notebook
 print(getwd())
 
 ```
+#library used
+
+```{r}
+library(dplyr)
+library(sqldf)
+library(ggplot2)
+
+```
+
+
 #https://stackoverflow.com/questions/39110755/skip-specific-rows-using-read-csv-in-r
 
 #Reading the first file for Guilford_County_Redemption_Week1, loading the data by skipping the documentation row from row 1 to row 14
@@ -71,7 +81,6 @@ length(unique(WIC_Redemption_df$`WIC Family ID`))
 #reporting out unique families 
 
 ```{r}
-library(dplyr)
 
 Unique_WIC_family_df<-distinct(WIC_Redemption_df, WIC_Redemption_df$'WIC Family ID', .keep_all = TRUE)
 
@@ -101,12 +110,11 @@ colnames(Unique_WIC_family_df)[25] <- "Authorization_Number"
 
 
 
-#4) Report out the average spending per family
+#4) Report out the average spending per family per trip
 
 
 ```{r}
 
-library(dplyr)
 Average_spending_df<-WIC_Redemption_df %>%
    group_by(WIC_Family_Id, Authorization_Number) %>% 
    summarise(Avg_requested_amount = mean(Requested_Amount),No_of_items=n())
@@ -134,8 +142,7 @@ length(unique(WIC_Redemption_df$Vendor_Number))
 
 
 ```{r}
-library(dplyr)
-count_number_of_vendor_per_item<-WIC_Redemption_df %>%
+   count_number_of_item_per_vendor<-WIC_Redemption_df %>%
    group_by(WIC_Family_Id, Vendor_Number) %>% 
    summarise(No_of_item_per_vendor=n())
 ```
@@ -143,7 +150,7 @@ count_number_of_vendor_per_item<-WIC_Redemption_df %>%
 
 ```{r}
 
-unique_vendor_number_count_for_families=count_number_of_vendor_per_item %>% group_by(Vendor_Number) %>% tally()
+unique_vendor_number_count_for_families=count_number_of_item_per_vendor %>% group_by(Vendor_Number) %>% tally()
 
 
 ```
@@ -151,9 +158,8 @@ unique_vendor_number_count_for_families=count_number_of_vendor_per_item %>% grou
 #finding frequency or count for vendor used/occurance for each families
 
 ```{r}
-library(sqldf)
 Vendor_number_freq<-sqldf("SELECT WIC_Family_Id, Vendor_Number, COUNT(*) as Vendor_number_freq
-       FROM count_number_of_vendor_per_item
+       FROM count_number_of_item_per_vendor
        GROUP BY WIC_Family_Id")
 ```
 
@@ -178,12 +184,6 @@ Avg_Vendor_freq$median_vendor <- Avg_Vendor_freq$Vendor_number_freq
 
 #Reporting average spending for each family
 
-```{r}
-library(ggplot2)
-library(dplyr)
-
-
-```
 #shows the average spending for each family
 ```{r}
 ggplot(Average_spending_df, aes(x=WIC_Family_Id, y=Average_spending_df$Avg_requested_amount )) + 
@@ -196,7 +196,10 @@ ggplot(Average_spending_df, aes(x=WIC_Family_Id, y=Average_spending_df$Avg_reque
         stroke = 2
     )
 ```
+
 #vendor count distribution
+
+
 ```{r}
 barplot(height= Vendor_number_freq$Vendor_number_freq , names=Vendor_number_freq$Vendor_Number , 
         col=rgb(0.8,0.1,0.1,0.6),
@@ -210,33 +213,10 @@ barplot(height= Vendor_number_freq$Vendor_number_freq , names=Vendor_number_freq
 
 
 ```
+#no of item puchased from vendor
+
 ```{r}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ggplot(count_number_of_item_per_vendor, aes(x=Vendor_Number, y=No_of_item_per_vendor)) + 
+    geom_point()
 ```
 
