@@ -95,8 +95,7 @@ colnames(WIC_Redemption_df)[25] <- "Authorization_Number"
 colnames(WIC_Redemption_df)[27] <- "Vendor_Number"
 colnames(WIC_Redemption_df)[2] <- "Report_End_Date"
 colnames(WIC_Redemption_df)[1] <- "Report_Begin_Date"
-
-
+colnames(WIC_Redemption_df)[26] <- "Vendor_Name"
 
 ```
 
@@ -187,7 +186,7 @@ Week_distribuion$week <- ifelse (WIC_Redemption_df$Report_Begin_Date == '2/17/20
 
 ```
 
-#Average spending amount grouped using family id, autorization number (each trip) and week (week 1, week 2 and week 3)
+#Average spending amount grouped using family id, autorization number (each trip) and week (week 1, week 2 and week3)
 
 
 ```{r}
@@ -195,11 +194,24 @@ Week_distribuion$week <- ifelse (WIC_Redemption_df$Report_Begin_Date == '2/17/20
    group_by(WIC_Family_Id, Authorization_Number, week) %>% 
    summarise(Avg_requested_amount = mean(Requested_Amount),No_of_items=n())
 ```
+#creating a dataframe with family id, vendor name and vendor number by grouoing on family id and vendor number
 
 ```{r}
 
+family_with_vendor_name_df <- sqldf("SELECT WIC_Family_Id, Vendor_Number, Vendor_Name, COUNT(*) as No_of_item_per_vendor
+       FROM WIC_Redemption_df
+       GROUP BY WIC_Family_Id,Vendor_Number")
+
+
 ```
 
+#from family_with_vendor_name_df dataframe counting the occurance of vendor name for a family per purchase trip by grouping on family id
+
+```{r}
+Vendor_names_freq_with_family_id<-sqldf("SELECT WIC_Family_Id, Vendor_Number, Vendor_Name, COUNT(*) as Vendor_number_freq
+       FROM family_with_vendor_name_df
+       GROUP BY WIC_Family_Id")
+```
 
 
 #Data visualizations
@@ -207,6 +219,7 @@ Week_distribuion$week <- ifelse (WIC_Redemption_df$Report_Begin_Date == '2/17/20
 #Reporting average spending for each family
 
 #shows the average spending for each family for each week
+
 ```{r}
 ggplot(Average_spending_week_df, aes(x=week, y=Avg_requested_amount  )) + 
     geom_point(
@@ -220,27 +233,42 @@ ggplot(Average_spending_week_df, aes(x=week, y=Avg_requested_amount  )) +
     ylim(0, 500)
 ```
 
-
-# 
-
+#filtering certain vendors from Vendor_names_freq_with_family_id dataframe
 
 ```{r}
-barplot(height= Vendor_number_freq$Vendor_number_freq , names=Vendor_number_freq$Vendor_Number , 
+filter_vendor<- filter(Vendor_names_freq_with_family_id,Vendor_Number  == 14 | Vendor_Number  == 40 | Vendor_Number== 1116) 
+```
+
+#checking the data type for each column for filter_vendor dataframe
+
+```{r}
+str(filter_vendor)
+```
+
+#bar plot showing list of vendor name and family id and their vendor frequency
+
+```{r}
+  barplot(height= filter_vendor$Vendor_number_freq , names= filter_vendor$Vendor_Name, 
         col=rgb(0.8,0.1,0.1,0.6),
-        xlab="Vendor number", 
-        ylab="Vendor count", 
-        main="Vendor count distribution", 
+        xlab="Vendor Name", 
+        ylab="Vendor frquency count", 
+        main="Vendor distribution", 
         ylim=c(0,10)
         )
-
-
-
-
+  barplot(height= filter_vendor$Vendor_number_freq , names= filter_vendor$WIC_Family_Id, 
+        col=rgb(0.8,0.1,0.1,0.6),
+        xlab="Familes", 
+        ylab="Vendor frequency count", 
+        main="Vendor distribution", 
+        ylim=c(0,10)
+        )
 ```
-#no of item puchased from vendor
+
+
+#plt showing no of item puchased from vendor
 
 ```{r}
-ggplot(count_number_of_item_per_vendor, aes(x=Vendor_Number, y=No_of_item_per_vendor)) + 
+ggplot(family_with_vendor_name_df, aes(x=Vendor_Name, y=No_of_item_per_vendor)) + 
     geom_point()
 ```
 
