@@ -12,7 +12,7 @@ output: html_notebook
 #getting the directory
 
 ```{r}
-print(getwd())
+#print(getwd())
 
 ```
 #library used
@@ -93,6 +93,9 @@ colnames(WIC_Redemption_df)[23] <- "Requested_Amount"
 colnames(WIC_Redemption_df)[13] <- "WIC_Family_Id"
 colnames(WIC_Redemption_df)[25] <- "Authorization_Number"
 colnames(WIC_Redemption_df)[27] <- "Vendor_Number"
+colnames(WIC_Redemption_df)[2] <- "Report_End_Date"
+colnames(WIC_Redemption_df)[1] <- "Report_Begin_Date"
+
 
 
 ```
@@ -122,14 +125,7 @@ Average_spending_df<-WIC_Redemption_df %>%
 
 
 #5) Report out the average (mean and median) number of vendors a family uses
-#for each family unique vendors
-#find unique vendors, unique family ?
-#WIC family id with mean vendors ? or count of vendors (Vendor id) 
-#only 2 columns vendors and WIC family id? 
 
-family - associated with vendor - unique vendor id
-id - count of unique vendor id -
-mean and median 
 
 #count of unique vendors
 
@@ -179,14 +175,40 @@ Avg_Vendor_freq$median_vendor <- Avg_Vendor_freq$Vendor_number_freq
 ```
 
 
+#grouping using week for each families
+
+#Creating a new column week to identify if purchase was made in week1 or week2 or week3 based on date range(report start or report end date)
+
+```{r}
+Week_distribuion<- WIC_Redemption_df
+Week_distribuion$week <- ifelse (WIC_Redemption_df$Report_Begin_Date == '2/17/2021' & WIC_Redemption_df$Report_End_Date == '2/23/2021','Week1',ifelse(WIC_Redemption_df$Report_Begin_Date == '2/24/2021' & WIC_Redemption_df$Report_End_Date == '3/2/2021','Week2','week3' ))
+
+
+
+```
+
+#Average spending amount grouped using family id, autorization number (each trip) and week (week 1, week 2 and week 3)
+
+
+```{r}
+   Average_spending_week_df<-Week_distribuion %>%
+   group_by(WIC_Family_Id, Authorization_Number, week) %>% 
+   summarise(Avg_requested_amount = mean(Requested_Amount),No_of_items=n())
+```
+
+```{r}
+
+```
+
+
 
 #Data visualizations
 
 #Reporting average spending for each family
 
-#shows the average spending for each family
+#shows the average spending for each family for each week
 ```{r}
-ggplot(Average_spending_df, aes(x=WIC_Family_Id, y=Average_spending_df$Avg_requested_amount )) + 
+ggplot(Average_spending_week_df, aes(x=week, y=Avg_requested_amount  )) + 
     geom_point(
       color="orange",
         fill="#69b3a2",
@@ -194,10 +216,12 @@ ggplot(Average_spending_df, aes(x=WIC_Family_Id, y=Average_spending_df$Avg_reque
         alpha=0.5,
         size=6,
         stroke = 2
-    )
+    ) +
+    ylim(0, 500)
 ```
 
-#vendor count distribution
+
+# 
 
 
 ```{r}
