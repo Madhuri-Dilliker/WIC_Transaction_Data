@@ -210,7 +210,7 @@ family_with_vendor_name_df <- sqldf("SELECT WIC_Family_Id, Vendor_Number, Vendor
 ```{r}
 Vendor_names_freq_with_family_id<-sqldf("SELECT WIC_Family_Id, Vendor_Number, Vendor_Name, COUNT(*) as Vendor_number_freq
        FROM family_with_vendor_name_df
-       GROUP BY WIC_Family_Id,Authorization_Number")
+       GROUP BY WIC_Family_Id")
 ```
 
 
