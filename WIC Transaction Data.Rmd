@@ -198,9 +198,9 @@ Week_distribuion$week <- ifelse (WIC_Redemption_df$Report_Begin_Date == '2/17/20
 
 ```{r}
 
-family_with_vendor_name_df <- sqldf("SELECT WIC_Family_Id, Vendor_Number, Vendor_Name, COUNT(*) as No_of_item_per_vendor
+family_with_vendor_name_df <- sqldf("SELECT WIC_Family_Id, Vendor_Number, Vendor_Name,Authorization_Number, COUNT(*) as No_of_item_per_vendor
        FROM WIC_Redemption_df
-       GROUP BY WIC_Family_Id,Vendor_Number")
+       GROUP BY WIC_Family_Id,Authorization_Number,Vendor_Number")
 
 
 ```
@@ -210,7 +210,7 @@ family_with_vendor_name_df <- sqldf("SELECT WIC_Family_Id, Vendor_Number, Vendor
 ```{r}
 Vendor_names_freq_with_family_id<-sqldf("SELECT WIC_Family_Id, Vendor_Number, Vendor_Name, COUNT(*) as Vendor_number_freq
        FROM family_with_vendor_name_df
-       GROUP BY WIC_Family_Id")
+       GROUP BY WIC_Family_Id,Authorization_Number")
 ```
 
 
