@@ -21,6 +21,7 @@ output: html_notebook
 library(dplyr)
 library(sqldf)
 library(ggplot2)
+library(modeest)
 
 ```
 
@@ -186,14 +187,64 @@ Week_distribuion$week <- ifelse (WIC_Redemption_df$Report_Begin_Date == '2/17/20
 
 ```
 
+
 #Average spending amount grouped using family id, autorization number (each trip) and week (week 1, week 2 and week3)
 
 
 ```{r}
    Average_spending_week_df<-Week_distribuion %>%
    group_by(WIC_Family_Id, Authorization_Number, week) %>% 
-   summarise(Avg_requested_amount = mean(Requested_Amount),No_of_items=n())
+   summarise(Avg_requested_amount = Requested_Amount,No_of_items=n())
 ```
+
+
+#finding mean for each week
+
+```{r}
+Mean_weekly<-group_by(Average_spending_week_df, week) %>%  summarise(m=mean(Avg_requested_amount))
+colnames(Mean_weekly)[2] <- "Mean"
+```
+
+#finding median for each week
+
+```{r}
+
+Median_weekly<-group_by(Average_spending_week_df, week) %>%  summarise(m= median (Avg_requested_amount))
+colnames(Median_weekly)[2] <- "Median"
+colnames(Median_weekly)[1] <- "week1"
+
+```
+
+
+#combining mean and median in one dataframe
+
+```{r}
+Mean_meadian_weekly<-cbind(Mean_weekly,Median_weekly)
+Mean_meadian_weekly<- sqldf('SELECT week,Mean,Median FROM Mean_meadian_weekly' )
+```
+
+#Mode function
+
+```{r}
+#my_mode <- function(x) {                      
+ # unique_x <- unique(x)
+ # tabulate_x <- tabulate(match(x, unique_x))
+ # unique_x[tabulate_x == max(tabulate_x)]
+#}
+```
+#filter week data
+
+```{r}
+#filter_week_data<- filter(Average_spending_week_df,Average_spending_week_df$week == 'week1' )
+```
+
+#check mode function
+
+```{r}
+#my_mode(Average_spending_week_df$Avg_requested_amount)
+```
+
+
 #creating a dataframe with family id, vendor name and vendor number by grouoing on family id and vendor number
 
 ```{r}
@@ -219,6 +270,30 @@ Vendor_names_freq_with_family_id<-sqldf("SELECT WIC_Family_Id, Vendor_Number, Ve
 #Reporting average spending for each family
 
 #shows the average spending for each family for each week
+
+```{r}
+
+
+
+ggplot(Mean_meadian_weekly, aes(x=week, y=Mean , Group = interaction(Median) )) + 
+    geom_point(
+      color="orange",
+        fill="#69b3a2",
+        shape=21,
+        alpha=0.5,
+        size=6,
+        stroke = 2
+    ) +
+    ylim(0, 10)
+
+
+
+ggplot(Mean_meadian_weekly, aes(week)) + geom_point(aes(y=Mean), color="red") + geom_point(aes(y=Median), color = "green")  +
+    ylim(0, 10)
+
+
+```
+
 
 ```{r}
 ggplot(Average_spending_week_df, aes(x=week, y=Avg_requested_amount  )) + 
