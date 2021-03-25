@@ -1,0 +1,104 @@
+---
+title: "WIC Transaction Data- Merged"
+output: html_notebook
+---
+
+#library used
+
+```{r}
+library(dplyr)
+library(sqldf)
+
+```
+#load data
+```{r}
+Redemption_data_df <- read.csv("MergedData.csv")
+```
+
+#1) Report out the number of unique families
+
+```{r}
+length(unique(Redemption_data_df$WIC_Fam_ID_Hash))
+```
+
+#reporting out unique families 
+
+```{r}
+Unique_WIC_family_df<-distinct(Redemption_data_df, Redemption_data_df$WIC_Fam_ID_Hash, .keep_all = TRUE)
+```
+
+#Renaming column for easy identification
+
+```{r}
+colnames(Unique_WIC_family_df)[20] <- "Requested_Amount"
+
+```
+#Renaming column for easy identification
+
+```{r}
+colnames(Redemption_data_df)[20] <- "Requested_Amount"
+colnames(Redemption_data_df)[2] <- "Report_End_Date"
+colnames(Redemption_data_df)[1] <- "Report_Begin_Date"
+```
+
+
+#1)Report out the average spending per family per trip
+
+
+```{r}
+Average_spending_df<-Redemption_data_df %>%
+   group_by(WIC_Fam_ID_Hash, Auth_Num_Hash) %>% 
+   summarise(Avg_requested_amount = mean(Requested_Amount),  No_of_items=n())
+```
+#grouping data using week for each families
+
+```{r}
+
+Week_distribution<- Redemption_data_df
+Week_distribution$Week <- ifelse (Redemption_data_df$Report_Begin_Date == '2/17/2021' & Redemption_data_df$Report_End_Date == '2/23/2021','Week1',ifelse(Redemption_data_df$Report_Begin_Date == '2/24/2021' & Redemption_data_df$Report_End_Date == '3/2/2021','Week2','week3' ))
+
+```
+
+#rounding the data to 2 decimal places
+
+```{r}
+Week_distribution$Requested_Amount<-format(round(Week_distribution$Requested_Amount, 2), nsmall = 2)     
+```
+#Week_distribution dataframe grouped by family id, auth number and week
+
+```{r}
+Average_spending_week_df1<-sqldf("SELECT WIC_Fam_ID_Hash, Auth_Num_Hash,Requested_Amount, AVG(Requested_Amount) as Avg_Requested_amount,Week
+       FROM Week_distribution
+       GROUP BY WIC_Fam_ID_Hash,Auth_Num_Hash,Week")
+
+
+```
+
+#rounding the data to 2 decimal places
+
+```{r}
+
+Average_spending_week_df1$Avg_Requested_amount<-format(round(Average_spending_week_df1$Avg_Requested_amount, 2), nsmall = 2) 
+ 
+```
+
+#removing na 
+
+```{r}
+Average_spending_week_df1<- na.omit(Average_spending_week_df1)
+```
+
+#find mean of data
+
+```{r}
+#tapply(Average_spending_week_df1$Requested_Amount,Average_spending_week_df1$Week, mean)
+```
+
+```{r}
+#group_by(Average_spending_week_df1, Week) %>%  summarise(m=mean(Requested_Amount))
+```
+
+```{r}
+
+```
+
