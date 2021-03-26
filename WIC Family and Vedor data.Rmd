@@ -15,6 +15,52 @@ library(sqldf)
 Redemption_data_df <- read.csv("MergedData.csv")
 ```
 
+
+```{r}
+colnames(Redemption_data_df)[20] <- "Requested_Amount"
+colnames(Redemption_data_df)[2] <- "Report_End_Date"
+colnames(Redemption_data_df)[1] <- "Report_Begin_Date"
+colnames(Redemption_data_df)[9] <- "Category_Code"
+colnames(Redemption_data_df)[10] <- "Category_Name"
+colnames(Redemption_data_df)[22] <- "Vendor_Name_x"
+colnames(Redemption_data_df)[23] <- "Vendor_Number"
+colnames(Redemption_data_df)[34] <- "Vendor_Name_y"
+colnames(Redemption_data_df)[35] <- "Address"
+colnames(Redemption_data_df)[36] <- "City"
+colnames(Redemption_data_df)[37] <- "Zipcode"
+
+
+```
+
+
+
+
+```{r}
+Redemption_data<-sqldf("SELECT Report_Begin_Date,Report_End_Date,WIC_Fam_ID_Hash, Auth_Num_Hash,Requested_Amount,Category_Code,Category_Name,Vendor_Name_x,Vendor_Number,Vendor_Name_y, Address, City, Zipcode
+       FROM Redemption_data_df
+       GROUP BY WIC_Fam_ID_Hash,Auth_Num_Hash")
+
+```
+
+```{r}
+Redemption_data <- Redemption_data %>%
+            filter(Requested_Amount > 0)
+```
+
+
+```{r}
+sum(is.na(Redemption_data))
+```
+
+```{r}
+Redemption_data <- na.omit(Redemption_data)
+
+```
+
+```{r}
+```
+
+
 #1) Report out the number of unique families
 
 ```{r}
