@@ -36,31 +36,39 @@ colnames(Redemption_data_df)[37] <- "Zipcode"
 #Select few columns from Redemption data 
 
 
+
 ```{r}
-Redemption_data<-sqldf("SELECT Report_Begin_Date,Report_End_Date,WIC_Fam_ID_Hash, Auth_Num_Hash,Requested_Amount,Category_Code,Category_Name,Vendor_Name_x,Vendor_Number,Vendor_Name_y, Address, City, Zipcode
+Redemption_data_df1<-sqldf("SELECT Report_Begin_Date,Report_End_Date,WIC_Fam_ID_Hash, Auth_Num_Hash,Avg(Requested_Amount) as Avg_Requested_Amount,Category_Code,Category_Name,Vendor_Name_x,Vendor_Number,Vendor_Name_y, Address, City, Zipcode
        FROM Redemption_data_df
        GROUP BY WIC_Fam_ID_Hash,Auth_Num_Hash")
-
 ```
+
+
+
 
 #filter out positive values from Requested_Amount field
 
 ```{r}
-Redemption_data <- Redemption_data %>%
-            filter(Requested_Amount > 0)
+Redemption_data_df1 <- Redemption_data_df1 %>%
+            filter(Avg_Requested_Amount > 0)
 ```
 
 #count of na values in Redemption_data dataframe
 
 ```{r}
-sum(is.na(Redemption_data))
+sum(is.na(Redemption_data_df1))
 ```
 
 #remove na values from Redemption_data dataframe
 
 ```{r}
-Redemption_data <- na.omit(Redemption_data)
+Redemption_data_df1 <- na.omit(Redemption_data_df1)
 
+```
+
+
+```{r}
+Redemption_data_df1$Avg_Requested_Amount<-format(round(Redemption_data_df1$Avg_Requested_Amount, 2), nsmall = 2) 
 ```
 
 
