@@ -33,24 +33,12 @@ colnames(Redemption_data_df)[37] <- "Zipcode"
 
 ```
 
-#Select few columns from Redemption data 
-
-
-
-```{r}
-Redemption_data_df1<-sqldf("SELECT Report_Begin_Date,Report_End_Date,WIC_Fam_ID_Hash, Auth_Num_Hash,Avg(Requested_Amount) as Avg_Requested_Amount,Category_Code,Category_Name,Vendor_Name_x,Vendor_Number,Vendor_Name_y, Address, City, Zipcode
-       FROM Redemption_data_df
-       GROUP BY WIC_Fam_ID_Hash,Auth_Num_Hash")
-```
-
-
-
 
 #filter out positive values from Requested_Amount field
 
 ```{r}
-Redemption_data_df1 <- Redemption_data_df1 %>%
-            filter(Avg_Requested_Amount > 0)
+Redemption_data_df1 <- Redemption_data_df %>%
+            filter(Requested_Amount > 0)
 ```
 
 #count of na values in Redemption_data dataframe
@@ -66,16 +54,27 @@ Redemption_data_df1 <- na.omit(Redemption_data_df1)
 
 ```
 
+#Select few columns from Redemption data 
 
 ```{r}
-Redemption_data_df1$Avg_Requested_Amount<-format(round(Redemption_data_df1$Avg_Requested_Amount, 2), nsmall = 2) 
+Redemption_data_df2<-sqldf("SELECT Report_Begin_Date,Report_End_Date,WIC_Fam_ID_Hash, Auth_Num_Hash,Avg(Requested_Amount) as Avg_Requested_Amount,Category_Code,Category_Name,Vendor_Name_x,Vendor_Number,Vendor_Name_y, Address, City, Zipcode
+       FROM Redemption_data_df1
+       GROUP BY WIC_Fam_ID_Hash,Auth_Num_Hash")
 ```
+
+
+```{r}
+Redemption_data_df2$Avg_Requested_Amount<-format(round(Redemption_data_df2$Avg_Requested_Amount, 2), nsmall = 2) 
+```
+
 
 
 #1) Report out the number of unique families
 
 ```{r}
 length(unique(Redemption_data_df$WIC_Fam_ID_Hash))
+length(unique(Redemption_data_df$Auth_Num_Hash))
+
 ```
 
 #reporting out unique families 
