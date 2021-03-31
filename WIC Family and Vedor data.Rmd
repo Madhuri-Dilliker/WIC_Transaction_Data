@@ -34,20 +34,133 @@ colnames(Redemption_data_df)[37] <- "Zipcode"
 ```
 
 
-#filter out positive values from Requested_Amount field
+
+
+```{r}
+Redemption_data_df3<-sqldf("SELECT Report_Begin_Date,Report_End_Date,WIC_Fam_ID_Hash, Auth_Num_Hash,Avg(Requested_Amount) as Avg_Requested_Amount,Category_Code,Category_Name,Vendor_Name_x,Vendor_Number,Vendor_Name_y, Address, City, Zipcode
+       FROM Redemption_data_df
+       GROUP BY WIC_Fam_ID_Hash,Auth_Num_Hash")
+```
+
+#drop na - before (drop na then filter)
+
+#sum of na
+
+```{r}
+sum(is.na(Redemption_data_df))
+```
+
+
+```{r}
+Redemption_data_df_7 <- na.omit(Redemption_data_df) #47891
+```
+
+#filter positive- before (drop na then filter positive values)
+
+```{r}
+
+Redemption_data_df_8<- Redemption_data_df_7 %>%  #45403
+            filter(Requested_Amount > 0)
+
+```
+
+
+#grouping- before (drop na then filter positive values)
+
+#10136
+
+```{r}
+
+Redemption_data_df_9<-sqldf("SELECT Report_Begin_Date,Report_End_Date,WIC_Fam_ID_Hash, Auth_Num_Hash,Avg(Requested_Amount) as Avg_Requested_Amount,Category_Code,Category_Name,Vendor_Name_x,Vendor_Number,Vendor_Name_y, Address, City, Zipcode
+       FROM Redemption_data_df_8
+       GROUP BY WIC_Fam_ID_Hash,Auth_Num_Hash")
+
+```
+
+
+#drop na - After (drop na then filter positive values)
+
+```{r}
+sum(is.na(Redemption_data_df3)) #5064
+
+```
+#remove na -  After (drop na then filter positive values)
+
+```{r}
+Redemption_data_df_10 <- na.omit(Redemption_data_df3)  #13149
+```
+
+
+
+
+
+#filter positive  After (drop na then filter positive values)
+
+```{r}
+
+Redemption_data_df_11<- Redemption_data_df_10 %>%  #12735
+            filter(Avg_Requested_Amount > 0)
+
+```
+
+
+
+
+# negative values (grouping)
+```{r}
+Redemption_data_df5_negative<- Redemption_data_df3 %>%
+            filter(Avg_Requested_Amount < 0)
+```
+
+#negative values
+
+```{r}
+Redemption_data_df6_negative<- Redemption_data_df %>%
+            filter(Requested_Amount < 0)
+
+```
+
+
+
+
+#filter postive values in dataset -after (filter then drop na)
+
+```{r}
+Redemption_data_df4<- Redemption_data_df3 %>%
+            filter(Avg_Requested_Amount > 0)
+```
+
+#sum of missing values- after (filter then drop na)
+
+```{r}
+sum(is.na(Redemption_data_df4))
+
+
+```
+#remove misisng values - after (filter then drop na)
+
+```{r}
+Redemption_data_df4 <- na.omit(Redemption_data_df4)
+
+```
+
+
+
+
+#filter out positive values from Requested_Amount field for df1 - before (filter then drop na)
 
 ```{r}
 Redemption_data_df1 <- Redemption_data_df %>%
             filter(Requested_Amount > 0)
 ```
 
-#count of na values in Redemption_data dataframe
+#count of na values in Redemption_data dataframe - before
 
 ```{r}
 sum(is.na(Redemption_data_df1))
 ```
 
-#remove na values from Redemption_data dataframe
+#remove na values from Redemption_data dataframe -before (filter then drop na)
 
 ```{r}
 Redemption_data_df1 <- na.omit(Redemption_data_df1)
@@ -72,8 +185,8 @@ Redemption_data_df2$Avg_Requested_Amount<-format(round(Redemption_data_df2$Avg_R
 #1) Report out the number of unique families
 
 ```{r}
-length(unique(Redemption_data_df$WIC_Fam_ID_Hash))
-length(unique(Redemption_data_df$Auth_Num_Hash))
+length(unique(Redemption_data_df2$WIC_Fam_ID_Hash))
+length(unique(Redemption_data_df2$Auth_Num_Hash))
 
 ```
 
